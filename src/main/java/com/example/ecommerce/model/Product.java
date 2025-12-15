@@ -25,10 +25,22 @@ public class Product {
 
     private Integer stock;
 
-    private boolean active;
+    private Boolean active;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    
+    @PrePersist
+    public void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 
     public Product() {}
 
@@ -80,12 +92,12 @@ public class Product {
 		this.stock = stock;
 	}
 
-	public boolean isActive() {
-		return active;
+	public Boolean getActive() {
+	    return active;
 	}
 
-	public void setActive(boolean active) {
-		this.active = active;
+	public void setActive(Boolean active) {
+	    this.active = active;
 	}
 
 	public LocalDateTime getCreatedAt() {

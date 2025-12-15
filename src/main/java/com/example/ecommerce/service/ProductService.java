@@ -41,7 +41,30 @@ public class ProductService {
         existing.setPrice(product.getPrice());
         existing.setCategory(product.getCategory());
         existing.setStock(product.getStock());
-        existing.setActive(product.isActive());
+        existing.setActive(product.getActive());
+
+        return repo.save(existing);
+    }
+
+    //for partial update -patch
+    public Product partialUpdate(int id, Product product) {
+
+        Product existing = getById(id);
+
+        if (product.getName() != null)
+            existing.setName(product.getName());
+
+        if (product.getPrice() != null)
+            existing.setPrice(product.getPrice());
+
+        if (product.getCategory() != null)
+            existing.setCategory(product.getCategory());
+
+        if (product.getStock() != null)
+            existing.setStock(product.getStock());
+
+        if (product.getActive() != null)
+            existing.setActive(product.getActive());
 
         return repo.save(existing);
     }
