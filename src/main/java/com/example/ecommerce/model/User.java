@@ -1,100 +1,90 @@
 package com.example.ecommerce.model;
 
-import java.time.LocalDateTime;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import java.util.HashSet;
+import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
 public class User {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@NotBlank(message = "Name is required")
-	private String name;
+    @NotBlank
+    private String name;
 
-	@NotBlank(message = "Email is required")
-	@Column(unique = true)
-	private String email;
+    @Email
+    @Column(unique = true, nullable = false)
+    private String email;
 
-	@NotBlank(message = "Password is required")
-	private String password;
+    @NotBlank
+    private String password;
 
-	// many to one relationship
-	@ManyToOne
-	@JoinColumn(name = "role_id") // FK column
-	private Role role;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+        name = "user_roles",
+        joinColumns = @JoinColumn(name = "user_id")
+    )
+    @Column(name = "role")
+    private Set<String> roles = new HashSet<>();
 
-	private LocalDateTime createdAt;
-	private LocalDateTime updatedAt;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private Cart cart;
 
-	public User() {
-	}
+    public User() {}
 
-	// getters and setters
-	public Integer getId() {
-		return id;
-	}
+    public Long getId() {
+        return id;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public String getName() {
+        return name;
+    }
 
-	public String getName() {
-		return name;
-	}
+    public void setName(String name) {
+        this.name = name;
+    }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
+    
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
+    public String getPassword() {
+        return password;
+    }
+    
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public Set<String> getRoles() {
+        return roles;
+    }
+    
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
+    }
 
-	public String getPassword() {
-		return password;
-	}
-
-	public void setPassword(String password) {
-		this.password = password;
-	}
-
-	public Role getRole() {
-		return role;
-	}
-
-	public void setRole(Role role) {
-		this.role = role;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	public LocalDateTime getUpdatedAt() {
-		return updatedAt;
-	}
-
-	public void setUpdatedAt(LocalDateTime updatedAt) {
-		this.updatedAt = updatedAt;
-	}
+    public Cart getCart() {
+        return cart;
+    }
+    
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
 }

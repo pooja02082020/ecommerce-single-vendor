@@ -1,37 +1,46 @@
 package com.example.ecommerce.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
 public class Order {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+	@JsonIgnore
+	@ManyToOne
+	@JoinColumn(name = "user_id")
+	private User user;
 
-    private Double totalAmount;
+	private Double totalAmount;
 
-    private String paymentStatus; // PAID / PENDING
+	private LocalDateTime orderDate;
 
-    private String orderStatus; // PENDING / SHIPPED / DELIVERED
+	@Enumerated(EnumType.STRING)
+	private OrderStatus orderStatus;
 
-    private LocalDateTime createdAt;
+	@Enumerated(EnumType.STRING)
+	private PaymentStatus paymentStatus;
 
-    public Order() {}
+	@OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+	private List<OrderItem> items = new ArrayList<>();
 
-	public Integer getId() {
-		return id;
+	public Order() {
+		this.orderDate = LocalDateTime.now();
+		this.orderStatus = OrderStatus.CREATED;
+		this.paymentStatus = PaymentStatus.PENDING;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public Long getId() {
+		return id;
 	}
 
 	public User getUser() {
@@ -50,29 +59,27 @@ public class Order {
 		this.totalAmount = totalAmount;
 	}
 
-	public String getPaymentStatus() {
-		return paymentStatus;
+	public LocalDateTime getOrderDate() {
+		return orderDate;
 	}
 
-	public void setPaymentStatus(String paymentStatus) {
-		this.paymentStatus = paymentStatus;
+	public List<OrderItem> getItems() {
+		return items;
 	}
 
-	public String getOrderStatus() {
+	public OrderStatus getOrderStatus() {
 		return orderStatus;
 	}
 
-	public void setOrderStatus(String orderStatus) {
+	public PaymentStatus getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setOrderStatus(OrderStatus orderStatus) {
 		this.orderStatus = orderStatus;
 	}
 
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
+	public void setPaymentStatus(PaymentStatus paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-    
-    
 }

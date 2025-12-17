@@ -1,15 +1,12 @@
 package com.example.ecommerce.service;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
-import com.example.ecommerce.exception.ResourceNotFoundException;
-import com.example.ecommerce.model.Cart;
-import com.example.ecommerce.model.Order;
+import com.example.ecommerce.model.*;
 import com.example.ecommerce.repository.CartRepository;
 import com.example.ecommerce.repository.OrderRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Random;
 
 @Service
 public class OrderService {
@@ -22,28 +19,64 @@ public class OrderService {
 		this.cartRepo = cartRepo;
 	}
 
-	public Order placeOrder(int userId) {
+	public Order placeOrder(User user) {
 
-		Cart cart = cartRepo.findByUserId(userId).orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+		Cart cart = cartRepo.findByUser(user).orElseThrow(() -> new RuntimeException("Cart not found"));
+
+		if (cart.getItems().isEmpty()) {
+			throw new RuntimeException("Cart is empty");
+		}
 
 		Order order = new Order();
-		order.setUser(cart.getUser());
-		order.setTotalAmount(cart.getTotalPrice());
-		order.setPaymentStatus("PAID");
-		order.setOrderStatus("PENDING");
-		order.setCreatedAt(LocalDateTime.now());
+		order.setUser(user);
+
+		double total = 0;
+
+		for (CartItem cartItem : cart.getItems()) {
+
+			OrderItem item = new OrderItem();
+			item.setOrder(order);
+			item.setProduct(cartItem.getProduct());
+			item.setQuantity(cartItem.getQuantity());
+			item.setPrice(cartItem.getProduct().getPrice());
+
+			total += cartItem.getQuantity() * cartItem.getProduct().getPrice();
+			order.getItems().add(item);
+		}
+
+		order.setTotalAmount(total);
+
+		cart.getItems().clear();
+		cartRepo.save(cart);
 
 		return orderRepo.save(order);
 	}
 
-	public List<Order> getUserOrders(int userId) {
-		return orderRepo.findByUserId(userId);
+	public Order simulatePayment(Long orderId) {
+
+		Order order = orderRepo.findById(orderId).orElseThrow(() -> new RuntimeException("Order not found"));
+
+		if (order.getPaymentStatus() == PaymentStatus.SUCCESS) {
+			throw new RuntimeException("Order already paid");
+		}
+
+		boolean paymentSuccess = new Random().nextBoolean();
+
+		if (paymentSuccess) {
+			order.setPaymentStatus(PaymentStatus.SUCCESS);
+			order.setOrderStatus(OrderStatus.PAID);
+		} else {
+			order.setPaymentStatus(PaymentStatus.FAILED);
+		}
+
+		return orderRepo.save(order);
 	}
 
-	public Order updateStatus(int orderId, String status) {
-		Order order = orderRepo.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+	public List<Order> myOrders(User user) {
+		return orderRepo.findByUser(user);
+	}
 
-		order.setOrderStatus(status);
-		return orderRepo.save(order);
+	public Order getOrder(Long id) {
+		return orderRepo.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
 	}
 }

@@ -2,45 +2,40 @@ package com.example.ecommerce.model;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
-@Table(name = "cart")
+@Table(name = "carts")
 public class Cart {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", unique = true)
     private User user;
 
-    private Double totalPrice;
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<CartItem> items = new ArrayList<>();
 
-    public Cart() {}
+    public Long getId() {
+        return id;
+    }
 
-	public Integer getId() {
-		return id;
-	}
+    public User getUser() {
+        return user;
+    }
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-
-	public Double getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(Double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-    
-    
+    public List<CartItem> getItems() {
+        return items;
+    }
 }
