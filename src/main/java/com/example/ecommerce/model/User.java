@@ -33,6 +33,10 @@ public class User {
     )
     @Column(name = "role")
     private Set<String> roles = new HashSet<>();
+    
+
+    // 1 = USER (default), 0 = ADMIN
+    private Integer role = 1;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
@@ -87,4 +91,14 @@ public class User {
     public void setCart(Cart cart) {
         this.cart = cart;
     }
+
+	public Integer getRole() {
+		return role;
+	}
+
+	public void setRole(Integer role) {
+		this.role = role;
+	}
+    
+    
 }
